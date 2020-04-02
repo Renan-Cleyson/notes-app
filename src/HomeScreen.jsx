@@ -1,41 +1,42 @@
-import React from 'react';
-import {
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableHighlight,
-} from 'react-native';
+import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import notesStorage from './notesStorage';
-import model from './backendModel.json';
-
-const styles = StyleSheet.create({
-  title: {
-    fontSize: 20,
-  },
-  noteBadge: {
-    height: '10%',
-  },
-});
+import { Text, ActivityIndicator } from 'react-native';
+import { AddButton } from './buttons';
+import NotesFlatList from './notesFlatList';
+import { getNote } from './notesStorage';
 
 export default function HomeScreen() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [notes, setNotes] = useState([]);
   const navigation = useNavigation();
+  const handleAddButtonOnPress = (note) => (
+    setNotes((prevState) => prevState.concat(note))
+  );
 
+  useEffect(() => {
+    const unsubscribeFocusListener = navigation
+      .addListener('focus', () => getNote().then((data) => {
+        setNotes(data);
+        setIsLoading(false);
+      }));
+    return unsubscribeFocusListener;
+  }, [navigation]);
+
+  if (isLoading) {
+    return <ActivityIndicator />;
+  }
+  if (!notes.length) {
+    return (
+      <>
+        <Text>Nothing to see here, please add a note.</Text>
+        <AddButton onPress={handleAddButtonOnPress} />
+      </>
+    );
+  }
   return (
-    <FlatList
-      data={model.data}
-      keyExtractor={({ id }) => id}
-      renderItem={({ item: { title, id } }) => (
-        <>
-          <TouchableHighlight
-            onPress={() => {
-              navigation.navigate('Note', { id });
-            }}
-          >
-            <Text style={styles.title}>{title}</Text>
-          </TouchableHighlight>
-        </>
-      )}
-    />
+    <>
+      <NotesFlatList notes={notes} setNotes={setNotes} />
+      <AddButton onPress={handleAddButtonOnPress} />
+    </>
   );
 }

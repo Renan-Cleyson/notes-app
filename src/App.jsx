@@ -12,8 +12,8 @@ export default function App() {
       <Stack.Navigator initialRouteName="Home">
         <Stack.Screen
           name="Home"
-          title="Notes App"
           component={HomeScreen}
+          options={{ title: 'Notes App' }}
         />
         <Stack.Screen
           name="Note"

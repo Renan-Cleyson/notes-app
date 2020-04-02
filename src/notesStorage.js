@@ -1,80 +1,64 @@
 import { AsyncStorage } from 'react-native';
 import uid from 'uid';
 
-class NotesStorage {
-  constructor() {
-    this.notes = [];
-    this.dataWasLoaded = false;
-  }
-  initialize() {
-    return AsyncStorage.getAllKeys()
-      .then((keys) => {
-        AsyncStorage.multiGet(keys)
-          .then((notes) => {
-            this.notes = notes.map((note) => ({ id: note[0], ...JSON.parse(note[1]) }));
-            this.checkAllTitles();
-          })
-      })
+export async function getNote(key) {
+  if (key) {
+    return JSON.parse(await AsyncStorage.getItem(key));
   }
 
-  getTitles(id = '') {
-    if (id) {
-      return this.notes.find(id);
-    }
-    return this.notes.map(({ title }) => title);
+  const keys = await AsyncStorage.getAllKeys();
+  const keyPairs = await AsyncStorage.multiGet(keys);
+
+  return keyPairs.map(([keyNote, value]) => ({
+    key: keyNote,
+    ...JSON.parse(value),
+  }));
+}
+
+function handleRepeatString(titles, string, counter = 1) {
+  const repeatString = `${string} (${counter})`;
+  if (titles.includes(repeatString)) {
+    return handleRepeatString(titles, string, counter + 1);
   }
 
-  getNote(id) {
-    if (id) {
-      return this.notes.find(id);
-    }
+  return repeatString;
+}
 
-    return this.notes;
+async function handleRepeatTitle(noteTitle) {
+  const notes = await getNote();
+  const titles = notes.map(({ title }) => title);
+
+  if (titles.includes(noteTitle)) {
+    return handleRepeatString(titles, noteTitle);
   }
 
-  handleRepeatTitles(titles, string, counter = 1) {
-    const repeatString = `${string} (${counter})`;
-    if (titles.includes(repeatString)) {
-      return this.handleRepeatTitles(titles, string, counter + 1);
-    }
+  return noteTitle;
+}
 
-    return repeatString;
-  }
+export async function setNote(title, text, key) {
+  let storedKey;
+  let checkedTitle;
+  const titleTrim = title.trim();
 
-  checkAllTitles() {
-    this.notes.forEach(({ id, title, text }) => {
-      let checkedTitle;
-      const titles = this.getTitles();
+  if (key) {
+    storedKey = key;
+    const prevTitle = (await getNote(key)).title;
 
-      if (titles.includes(title)) {
-        checkedTitle = this.handleRepeatTitles(titles, title.trim());
-      } else {
-        checkedTitle = title;
-      }
-
-      AsyncStorage.setItem(id, JSON.stringify({ title: checkedTitle, text }));
-    });
-  }
-
-  setNote(title, text) {
-    let checkedTitle;
-    const titles = this.getTitles();
-
-    if (titles.includes(title)) {
-      checkedTitle = this.handleRepeatTitles(titles, title.trim());
+    if (title !== prevTitle) {
+      checkedTitle = await handleRepeatTitle(titleTrim);
     } else {
       checkedTitle = title;
     }
-
-    const id = uid();
-    const data = { title: checkedTitle, text };
-    AsyncStorage.setItem(
-      id,
-      JSON.stringify(data),
-    );
-
-    this.notes.push({ id, ...data });
+  } else {
+    storedKey = uid();
+    checkedTitle = await handleRepeatTitle(titleTrim);
   }
+
+  const data = { title: checkedTitle, text };
+  await AsyncStorage.setItem(storedKey, JSON.stringify(data));
+  return { key: storedKey, ...data };
 }
 
-export default NotesStorage;
+export async function removeNote(key) {
+  AsyncStorage.removeItem(key);
+}
