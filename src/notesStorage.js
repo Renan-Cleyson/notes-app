@@ -8,11 +8,19 @@ export async function getNote(key) {
 
   const keys = await AsyncStorage.getAllKeys();
   const keyPairs = await AsyncStorage.multiGet(keys);
-
-  return keyPairs.map(([keyNote, value]) => ({
+  const deserializedKeyPairs = keyPairs.map(([keyNote, value]) => ({
     key: keyNote,
     ...JSON.parse(value),
   }));
+
+  deserializedKeyPairs.sort((firstPair, secondPair) => {
+    const firstDateValue = firstPair.storedTime;
+    const secondDateValue = secondPair.storedTime;
+
+    return -1 * (firstDateValue - secondDateValue);
+  });
+
+  return deserializedKeyPairs;
 }
 
 function handleRepeatString(titles, string, counter = 1) {
@@ -42,7 +50,8 @@ export async function setNote(title, text, key) {
 
   if (key) {
     storedKey = key;
-    const prevTitle = (await getNote(key)).title;
+    const prevNote = await getNote(key);
+    const prevTitle = prevNote.title;
 
     if (title !== prevTitle) {
       checkedTitle = await handleRepeatTitle(titleTrim);
@@ -54,7 +63,7 @@ export async function setNote(title, text, key) {
     checkedTitle = await handleRepeatTitle(titleTrim);
   }
 
-  const data = { title: checkedTitle, text };
+  const data = { title: checkedTitle, text, storedTime: Date.now() };
   await AsyncStorage.setItem(storedKey, JSON.stringify(data));
   return { key: storedKey, ...data };
 }

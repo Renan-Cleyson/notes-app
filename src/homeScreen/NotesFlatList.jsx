@@ -1,13 +1,24 @@
 import React from 'react';
 import { useNavigation } from '@react-navigation/native';
-import {
-  Alert,
-  FlatList,
-  Text,
-  TouchableOpacity,
-} from 'react-native';
+import { Alert, FlatList, View } from 'react-native';
 import PropTypes from 'prop-types';
-import { removeNote } from './notesStorage';
+import styled from 'styled-components/native';
+import { removeNote } from '../notesStorage';
+
+const NoteCard = styled.TouchableOpacity`
+  height: 60px;
+  padding: 0 20px;
+  margin-bottom: 10px;
+  border: 2px solid #ac7c46;
+  border-radius: 5px;
+
+  justify-content: center;
+`;
+
+const NoteTitle = styled.Text`
+  font-size: 20px;
+  padding-bottom: 10px;
+`;
 
 export default function NotesFlatList({ notes, setNotes }) {
   const navigation = useNavigation();
@@ -22,7 +33,7 @@ export default function NotesFlatList({ notes, setNotes }) {
     <FlatList
       data={notes}
       renderItem={({ index, item: { title, key } }) => (
-        <TouchableOpacity
+        <NoteCard
           onPress={() => navigation.navigate('Note', { key })}
           onLongPress={() => {
             Alert.alert(
@@ -32,8 +43,10 @@ export default function NotesFlatList({ notes, setNotes }) {
             );
           }}
         >
-          <Text>{title}</Text>
-        </TouchableOpacity>
+          <View>
+            <NoteTitle>{title}</NoteTitle>
+          </View>
+        </NoteCard>
       )}
     />
   );
