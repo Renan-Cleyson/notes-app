@@ -19,6 +19,7 @@ export default function HeaderTextInput({ value, onChangeText }) {
       onChangeText={onChangeText}
       onFocus={() => setIsFocused(true)}
       onBlur={() => setIsFocused(false)}
+      maxLength={21}
       isFocused={isFocused}
     />
   );

@@ -22,6 +22,7 @@ export default function HomeScreen() {
 
   useEffect(() => {
     const loadData = () => {
+      setIsLoading(true);
       getNote()
         .then((data) => {
           setNotes(data);

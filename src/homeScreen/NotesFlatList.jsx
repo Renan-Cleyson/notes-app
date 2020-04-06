@@ -6,18 +6,18 @@ import styled from 'styled-components/native';
 import { removeNote } from '../notesStorage';
 
 const NoteCard = styled.TouchableOpacity`
-  height: 60px;
-  padding: 0 20px;
-  margin-bottom: 10px;
-  border: 2px solid #ac7c46;
-  border-radius: 5px;
-
+  padding-bottom: 10px;
   justify-content: center;
 `;
 
 const NoteTitle = styled.Text`
+  padding-left: 5px;
   font-size: 20px;
-  padding-bottom: 10px;
+`;
+
+const Underline = styled.View`
+  background-color: ${({ underlineColor }) => underlineColor || '#000'};
+  height: 0.55px;
 `;
 
 export default function NotesFlatList({ notes, setNotes }) {
@@ -45,6 +45,7 @@ export default function NotesFlatList({ notes, setNotes }) {
         >
           <View>
             <NoteTitle>{title}</NoteTitle>
+            <Underline />
           </View>
         </NoteCard>
       )}
