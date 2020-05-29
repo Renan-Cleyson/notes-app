@@ -12,7 +12,7 @@ const TextAreaInput = styled.TextInput`
 
 export default function TextArea({ value, onChangeText }) {
   return (
-    <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={85}>
+    <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={-100}>
       <TextAreaInput
         placeholder="Tap here to insert text..."
         placeholderTextColor="#555"
