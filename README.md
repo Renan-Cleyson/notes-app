@@ -10,11 +10,11 @@ screen to view or edit a specific note.
 
 ## Demo
 
-![Initial App Page](/assets/Screenshot_notes.png)
+<img alt="Home Page" src="/assets/Screenshot_notes.png" width="350px">
 
-![Editing Note](/assets/Screenshot_edit_note.png)
+<img alt="Editing Note" src="/assets/Screenshot_edit_note.png" width="350px">
 
-![Deleting Note](/assets/Screenshot_delete.png)
+<img alt="Deleting Note" src="/assets/Screenshot_delete.png" width="350px">
 
 ## Installation
 
